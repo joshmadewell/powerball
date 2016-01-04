@@ -21,13 +21,17 @@ class Ticket {
 
 	calculateWinnings(winningNumbers) {
 		let self = this;
+
+		let winnings = 0;
 		let winningPowerball = winningNumbers.slice(5, 6)[0];
 		let winningWhiteballs = winningNumbers.slice(0, 5);
-		let winnings = 0;
+		let whiteBallsClone = self.whiteballs.slice(0, 5);
 
 		let matchingWhiteBalls = 0;
 		winningWhiteballs.forEach((winningWhite) => {
-			if (self.whiteballs.indexOf(winningWhite) !== -1) {
+			let index = whiteBallsClone.indexOf(winningWhite);
+			if (index !== -1) {
+				whiteBallsClone.splice(index, 1);
 				matchingWhiteBalls++;
 			}
 		});

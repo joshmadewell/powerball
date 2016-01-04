@@ -132,6 +132,7 @@ function _enterWinningTicket() {
 		var powerball = result.pb;
 		pool.calculateTotalWinnings(ticketWhites, powerball);
 		console.log('Total Winnings:', pool.totalPrizePool);
+		pool.prettyPrintEntrants();
 		_getActionPrompt();
 	});
 }
