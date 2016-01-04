@@ -1,0 +1,19 @@
+{
+  "name": "powerball",
+  "version": "0.0.1",
+  "description": "Tool to calculate winnings for powerball pool",
+  "main": "src/main.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "easy-table": "^1.0.0",
+    "prompt": "^0.2.14"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "gulp test"
+  },
+  "author": "Josh Madewell",
+  "license": "UNLICENSED"
+}
