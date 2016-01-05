@@ -1,6 +1,11 @@
 'use strict';
 
 const prompt = require('prompt');
+const Converter = require("csvtojson").Converter;
+const converter = new Converter({
+	delimiter: '\t',
+	noheader: true
+});
 const Pool = require('./lib/pool');
 
 const NUMBER_PROMPT = {
@@ -51,7 +56,7 @@ const TICKET_PROMPT = {
 const ACTION_PROMPT = {
 	properties: {
 		action: {
-			pattern: /^[print-|delete-]*entrant[s]*$|^[print-|delete-]*ticket[s]*$|^winner$|^reset$/i,
+			pattern: /^[print-|delete-]*entrant[s]*$|^[print-|delete-]*ticket[s]*$|^winner$|^file$|^reset$/i,
 			required: true
 		}
 	}
@@ -76,6 +81,14 @@ const CONTINUE_PROMPT = {
 			description: 'Enter Another? (y/n)',
 			default: 'y',
 			pattern: /^y$|^n$/i
+		}
+	}
+};
+
+const FILE_PATH = {
+	properties: {
+		filePath:  {
+			required: true
 		}
 	}
 };
@@ -161,6 +174,33 @@ function _deleteTicketPrompt() {
 	});
 }
 
+function _enterFilePath() {
+	prompt.get(FILE_PATH, (error, result) => {
+		if (error) return _cancelled(error);
+
+		let hasTicketId = false;
+		converter.fromFile(result.filePath, (error, result) => {
+			if (result[0].field7 !== undefined) {
+				hasTicketId = true;
+			}
+
+			result.forEach((ticket) => {
+				let ticketWhites, powerball;
+				if (hasTicketId) {
+					ticketWhites = [ticket.field2, ticket.field3, ticket.field4, ticket.field5, ticket.field6];
+					powerball = ticket.field7;
+					pool.addTicket(ticketWhites, powerball, ticket.field1);
+				} else {
+					ticketWhites = [ticket.field1, ticket.field2, ticket.field3, ticket.field4, ticket.field5];
+					powerball = ticket.field6;
+					pool.addTicket(ticketWhites, powerball);
+				}
+			});
+
+			_getActionPrompt();
+		});
+	});
+}
 
 function _getActionPrompt() {
 	console.log("What would you like to do?");
@@ -171,6 +211,7 @@ function _getActionPrompt() {
 	console.log("-- Print Tickets: 'print-tickets'");
 	console.log("-- Delete Ticket: 'delete-ticket'");
 	console.log("-- Enter Winning Ticket: 'winner'");
+	console.log("-- Enter tickets from file: 'file'");
 	console.log("-- Reset Pool: 'reset'");
 	console.log("-- ^d to quit");
 	prompt.get(ACTION_PROMPT, (error, result) => {
@@ -199,6 +240,9 @@ function _getActionPrompt() {
 				break;
 			case 'winner':
 				_enterWinningTicket();
+				break;
+			case 'file':
+				_enterFilePath();
 				break;
 			case 'reset':
 				pool.resetTickets();

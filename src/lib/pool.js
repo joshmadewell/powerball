@@ -40,10 +40,11 @@ class Pool {
 		_applyWinningPercentages(self);
 	}
 
-	addTicket(whiteballs, powerball) {
+	addTicket(whiteballs, powerball, ticketId) {
 		let self = this;
-		whiteballs.push(powerball);
-		self.tickets.push(new Ticket(whiteballs));
+		let numbers = _cloneArray(whiteballs);
+		numbers.push(powerball);
+		self.tickets.push(new Ticket(numbers, ticketId));
 	}
 
 	deleteTicket(index) {
@@ -69,13 +70,15 @@ class Pool {
 		});
 
 		console.log(table.toString());
+		console.log('Entrant Count: ', self.entrants.length);
 	}
 
 	prettyPrintTickets() {
 		let self = this;
 		let table = new Table();
 		self.tickets.forEach((ticket, index) => {
-			table.cell('#', (index + 1) + '.');
+			let number = ticket.id ? ticket.id : index + 1;
+			table.cell('#', number + '.');
 			ticket.whiteballs.forEach((number, index) => {
 				table.cell('n' + (index + 1), number);
 			});
@@ -84,17 +87,25 @@ class Pool {
 		});
 
 		console.log(table.toString());
+		console.log('Ticket Count: ', self.tickets.length);
 	}
 
 	calculateTotalWinnings(winningWhiteballs, winningPowerball) {
 		let self = this;
 		let wonJackpot = false;
-		winningWhiteballs.push(winningPowerball);
+		let numbers = _cloneArray(winningWhiteballs);
+		numbers.push(winningPowerball);
+
+		self.totalPrizePool = 0;
 		self.tickets.forEach((ticket) => {
-			let winnings = ticket.calculateWinnings(winningWhiteballs);
+			let winnings = ticket.calculateWinnings(numbers);
 			if (winnings === 'JACKPOT') {
+				console.log(ticket.toString());
 				wonJackpot = true;
 			} else {
+				if (winnings) {
+					console.log(ticket.toString());
+				}
 				self.totalPrizePool += winnings;
 			}
 		});
@@ -105,6 +116,10 @@ class Pool {
 
 		return self.totalPrizePool;
 	}
+}
+
+function _cloneArray(array) {
+	return array.slice(0, array.lenth);
 }
 
 function _applyWinningPercentages(pool) {

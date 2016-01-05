@@ -13,10 +13,16 @@ const WINNING_COMBINATIONS = [
 ];
 
 class Ticket {
-	constructor(numbers) {
+	constructor(numbers, id) {
 		let self = this;
 		self.powerball = numbers.pop();
 		self.whiteballs = numbers;
+		self.id = id;
+	}
+
+	toString() {
+		let self = this;
+		return (self.id ? '#' + self.id + ' ' : '') + self.whiteballs.join(' ') + ' ' + self.powerball + ' -- $' + self.winnings;
 	}
 
 	calculateWinnings(winningNumbers) {
