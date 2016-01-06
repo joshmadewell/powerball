@@ -179,26 +179,43 @@ function _enterFilePath() {
 		if (error) return _cancelled(error);
 
 		let hasTicketId = false;
-		converter.fromFile(result.filePath, (error, result) => {
-			if (result[0].field7 !== undefined) {
-				hasTicketId = true;
-			}
-
-			result.forEach((ticket) => {
-				let ticketWhites, powerball;
-				if (hasTicketId) {
-					ticketWhites = [ticket.field2, ticket.field3, ticket.field4, ticket.field5, ticket.field6];
-					powerball = ticket.field7;
-					pool.addTicket(ticketWhites, powerball, ticket.field1);
-				} else {
-					ticketWhites = [ticket.field1, ticket.field2, ticket.field3, ticket.field4, ticket.field5];
-					powerball = ticket.field6;
-					pool.addTicket(ticketWhites, powerball);
+		try {
+			converter.fromFile(result.filePath, (error, result) => {
+				if (result === undefined ||
+					result[0] === undefined ||
+					result[0].field1 === undefined ||
+					result[0].field2 === undefined ||
+					result[0].field3 === undefined ||
+					result[0].field4 === undefined ||
+					result[0].field5 === undefined ||
+					result[0].field6 === undefined) {
+					console.log('Error parsing file.');
+					return _getActionPrompt();
 				}
-			});
 
+				if (result[0].field7 !== undefined) {
+					hasTicketId = true;
+				}
+
+				result.forEach((ticket) => {
+					let ticketWhites, powerball;
+					if (hasTicketId) {
+						ticketWhites = [ticket.field2, ticket.field3, ticket.field4, ticket.field5, ticket.field6];
+						powerball = ticket.field7;
+						pool.addTicket(ticketWhites, powerball, ticket.field1);
+					} else {
+						ticketWhites = [ticket.field1, ticket.field2, ticket.field3, ticket.field4, ticket.field5];
+						powerball = ticket.field6;
+						pool.addTicket(ticketWhites, powerball);
+					}
+				});
+
+				_getActionPrompt();
+			});
+		} catch (e) {
+			console.log('Error parsing file.');
 			_getActionPrompt();
-		});
+		}
 	});
 }
 
